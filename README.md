@@ -27,4 +27,25 @@ select member_name, income, avg(income) over(partition by
  (sum(expenses) over (partition by major_expense_type)/
   sum(expenses) over ()*100) as percentileOfExpense 
  from household;
+
+
+ -----Which household member(s) spent more than $1000 on ----
+ ------medical expenses?----
+select member_name, e.* from household as h 
+join (
+select member_id,expense_type, sum(amount) over (partition by member_id, expense_type	 
+ order by member_id, expense_type) as Total_expense
+ from expenses) as e 
+ on h.member_id = e.member_id 
+ where e.Total_expense > 1000 and expense_type = 'Medical';
  
+ 
+ 
+ 
+ SELECT h.member_id, h.member_name, h.income, SUM(e.amount) AS total_expenses,
+       (SUM(e.amount) / h.income) * 100 AS expense_percentage
+FROM household h
+JOIN expenses e ON h.member_id = e.member_id
+GROUP BY h.member_id, h.member_name, h.income
+HAVING expense_percentage < 20;
+
